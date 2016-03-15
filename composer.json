@@ -1,5 +1,5 @@
 {
-    "name": "yamsaferproviders/laravel-expedia",
+    "name": "HotelsProviders/expedia",
     "description": "Expedia API wrapper for Laravel",
     "keywords": ["laravel", "Expedia"],
     "authors": [
@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-0": {
-            "HotelsProvider\\Expedia": "src/"
+            "HotelsProviders\\Expedia": "src/"
         }
     },
     "minimum-stability": "stable"

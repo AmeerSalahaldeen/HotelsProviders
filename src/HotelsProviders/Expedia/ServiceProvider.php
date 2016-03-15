@@ -32,7 +32,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 */
 	public function register()
 	{
-		$this->app['HotelsProvider.expedia'] = $this->app->share(function($app)
+		$this->app['HotelsProviders.expedia'] = $this->app->share(function($app)
 		{
             $config = $app->config->get('HotelsProviders::config', array());
 
