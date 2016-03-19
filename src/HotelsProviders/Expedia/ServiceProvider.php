@@ -19,7 +19,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	public function boot()
 	{
         // Register the package namespace
-        $this->package('HotelsProviders\Expedia');
+        $this->package('HotelsProviders/Expedia');
 
 		// Auto create app alias with boot method.
 		AliasLoader::getInstance()->alias('ExpediaProviders', 'HotelsProviders\Expedia\Facade');

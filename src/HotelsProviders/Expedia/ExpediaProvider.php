@@ -4,65 +4,48 @@ class ExpediaProvider {
 
     private $config;
 
-    public function __construct($config)
+    public function __construct($config, BookingRepositroy $bookingRepo,
+        RoomsRepository $roomsRepo, HotelsRepository $hotelsRepo)
     {
-        $this->config = $config;
+        $this->config       = $config;
+        $this->bookingRepo  = $bookingRepo;
+        $this->roomsRepo    = $roomsRepo;
+        $this->hotelsRepo   = $hotelsRepo;
     }
-    public  function book($data, $checkoutInfo)
+
+    public function reserve($customer, $creditCard, $rooms)
     {
-        foreach ($checkoutInfo['accoomodations'] as $room) {
-            $identfier = $room->roomTypeCode.$room->rateCode.$room->rateKey;
-            $rooms [$identfier] = $room;
-        }
-
-        $reservation = new Reservation($data, $checkoutInfo);
-        // merge the same rooms .
-        $reservation->rooms = $this->meregRooms($reservation->rooms);
-
-        foreach ($reservation->rooms as $identfier => $room) {
-            $apiRequestor = new ApiRequestor($this->config);
-            $response = $apiRequestor->request('POST', $this->config['bookingUrl'], $reservation->getUrl($room));
-            if (property_exists($response, "EanWsError")) {
-                $errors [$identfier] = $response->EanWsError; 
-                $failedRooms[] = $rooms[$identfier];
-            } else {
-                $soldRooms [] = $rooms[$identfier];
-            }
-        }
-
-
-        return ['sold_rooms' => @$soldRooms, 'failed_rooms' => $failedRooms,'errors' => $errors];
+        return $this->bookingRepo->postBook($customer, $creditCard, $rooms);
     }
 
-    public  function getAvailabilty($checkIn, $checkOut, $hotelId) {
-
-    }
-
-    protected function meregRooms($rooms)
+    public function getBookingStatus($id, $checkIn, $checkOut)
     {
-        $mergedRooms = [];
-
-        foreach ($rooms as $identfier => $room) {
-            if (in_array($identfier, array_keys($mergedRooms))) {
-                $mergedRooms[$identfier]->roomsCount = $rooms[$identfier]->roomsCount + 1;
-            } else {
-                $mergedRooms[$identfier] = $room; 
-            }
-        }
-
-        return $mergedRooms;
+        return $this->bookingRepo->getStatus($id, $checkinDate, $checkoutDate);
     }
 
-    public  function getHotelInfo($hotelId) {
-
-    }
-    protected function format($response)
+    public function getRooms($hotelId, $parameters)
     {
-        if (property_exists($response, "EanWsError")) {
-            return $expediaResponse->EanWsError;
-        }
+        $this->roomsRepo->getRoomsAvilability($hotelId, $parameters);
+    }
 
-        return $response->HotelRoomReservationResponse;
+    public function getRoomsByRateId($hotelId, $rateCode, $roomTypeCode, $parameters)
+    {
+        $this->roomsRepo->getRoomsByRateId($hotelId, $rateCode, $roomTypeCode, $parameters);
+    }
+
+    public function getHotelInfo($id, $parameters)
+    {
+        $this->hotelsRepo->getHotelInfo($id, $parameters);
+    }
+
+    public function getHotelsList($ids, $parameters)
+    {
+        $this->hotelsRepo->getHotelAvailabiltyByList($ids, $parameters);
+    }
+
+    public function getPaymentTypes($id, $parameters)
+    {
+        $this->hotelsRepo->getPaymentTypes($id, $parameters);
     }
 
 }
