@@ -7,7 +7,7 @@ trait ApiMethodsTrait
      */
     public function getHotelsApi()
     {
-        return new Api\Hotels($this);
+        return new Apis\Hotels($this);
     }
 
     /**
@@ -15,7 +15,7 @@ trait ApiMethodsTrait
      */
     public function getRoomsApi()
     {
-        return new Api\Rooms($this);
+        return new Apis\Rooms($this);
     }
 
     /**
@@ -23,7 +23,7 @@ trait ApiMethodsTrait
      */
     public function getBookingsApi()
     {
-        return new Api\Bookings($this);
+        return new Apis\Bookings($this);
     }
 
 }

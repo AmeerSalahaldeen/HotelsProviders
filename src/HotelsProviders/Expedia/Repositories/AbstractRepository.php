@@ -1,5 +1,7 @@
 <?php namespace HotelsProviders\Expedia\Repositories;
 
+use HotelsProviders\Expedia\Client;
+
 abstract class AbstractRepository
 {
     protected $client = null;
@@ -32,15 +34,15 @@ abstract class AbstractRepository
      * @param  array $parameters
      * @return string
      */
-    protected function parseQueryParameters(array $parameters = [])
+    protected function parseQueryParameters($parameters = [])
     {
         $queryParams = '';
 
         foreach ($parameters as $key => $value) {
-            $queryParams .= $key.'='.$value.'&';
+            $queryParams = $queryParams.$key.'='.$value.'&';
         }
 
-        return $parameters;
+        return $queryParams;
     }
 
     /**

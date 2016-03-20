@@ -9,20 +9,20 @@ class RoomsRepository extends AbstractRepository
      * @param  array $parameters
      * @return Rooms Availability
      */
-    public function getRoomsAvilability($hotelId, array $parameters = [])
+    public function getRoomsAvilability($hotelId, array $parameters = [], $childrenAges = '')
     {
         $parameters['hotelId'] = $hotelId;
-
         if (isset($parameters['occupancy'])) {
             $urls = $this->parseQueryParameters($parameters);
         } else {
+            unset($parameters['rooms']);
             for ($occupancy = 1; $occupancy < 9; $occupancy++) {
-                $parameters["rooms"][1]["adults"] = $occupancy;
+                $parameters["room1"] = $occupancy.$childrenAges;
                 $urls [] =  $this->parseQueryParameters($parameters);
             }   
         }
 
-        return $this->getApi()->getRooms($id, $urls);
+        return $this->getApi()->getRooms($urls);
     }
 
     /**
@@ -46,7 +46,7 @@ class RoomsRepository extends AbstractRepository
      */
     public function getApi()
     {
-        return $this->getClient()->getHotelsApi();
+        return $this->getClient()->getRoomsApi();
     }
 
 }

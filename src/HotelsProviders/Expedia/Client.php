@@ -36,32 +36,55 @@ class Client
      * @var string
      */
     private $minorRev;
+    /**
+     * Store the customerIpAddress
+     *
+     * @var string
+     */
+    private $customerIpAddress;
+
+    /**
+     * Store the customerSessionId
+     *
+     * @var string
+     */
+    private $customerSessionId;
 
     /**
      * Construct our client
      *
      * @param ApiToken $token
-     * @param array    $options
+     * @param array $options
      */
     public function __construct($config)
     {
-        $this->cid           = $config;
-        $this->apiExperience = ;
-        $this->cid           = ;
-        $this->minorRev      = ;
-        $this->apiKey        = ;
-        $this->constructHttpClient();
+        $this->cid                  = $config->get('expedia::expediaCid');
+        $this->apiExperience        = $config->get('expedia::apiExperience');
+        $this->minorRev             = $config->get('expedia::minorRev');
+        $this->apiKey               = $config->get('expedia::expediaApiKey');
+        $this->customerIpAddress    = $this->clientIp();
+        $this->customerSessionId    = $_SESSION["customerSessionId"];
+        $this->constructBasicUrl();
     }
 
-    // public function constructHttpClient()
-    // {
-    //     $url = '';
-    //     $vars = get_object_vars($this);
-    //     foreach ($vars as $var => $value) {
-    //         $url.=$var.'='.$value.'&';
-    //     }
+    public function constructBasicUrl()
+    {
+        $url = '';
+        $vars = get_object_vars($this);
+        foreach ($vars as $var => $value) {
+            $url.=$var.'='.$value.'&';
+        }
+        $this->baseUrl  = $url;
+    }
 
-    //     return $this->url;
-    // }
+    public function getBaseUrl()
+    {
+        return $this->baseUrl;
+    }
+
+    protected function generateSig()
+    {
+        //TODO use tokens auth instead of ips auth.
+    }
 
 }

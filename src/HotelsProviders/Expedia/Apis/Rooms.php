@@ -12,12 +12,11 @@ class Rooms extends AbstractApi
      */
     public function getRooms($parameters)
     {
-        if ( is_string($parameters)) return $this->get($this->baseUrl .'avail?'.$parameters);
+        if (is_string($parameters)) return $this->get($this->getBaseUrl().$parameters);
 
         foreach ($parameters as $param) {
-            $urls [] = $this->baseUrl .'avail?'.$param;
+            $urls [] = $this->getBaseUrl().$param;
         }
-
         return $this->get($urls);
     }
     /**
@@ -29,12 +28,18 @@ class Rooms extends AbstractApi
      * @param  array $parameters
      * @return mixed
      */
-    public function getRoomsByRateId($hotelId, $rateCode, $roomTypeCode, array $parameters = [])
+    public function getRoomsByRateId($hotelId, $rateCode, $roomTypeCode, $parameters)
     {
         $parameters['hotelId']      = $hotelId;
         $parameters['rateCode']     = $rateCode;
         $parameters['roomTypeCode'] = $roomTypeCode;
 
-        return $this->get($this->baseUrl . 'avail', $parameters);
+        return $this->get($this->baseUrl . 'avail?' . $parameters);
     }
+
+    public function getBaseUrl()
+    {
+        return $this->baseUrl .'avail?'.$this->getClient()->getBaseUrl();
+    }
+
 }

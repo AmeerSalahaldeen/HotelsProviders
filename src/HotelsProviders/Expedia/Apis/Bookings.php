@@ -2,35 +2,40 @@
 
 class Bookings extends AbstractApi
 {
-    $baseUrl = "http://api.ean.com/ean-services/rs/hotel/v3/";
-            //book.api.ean.com/ean-services/rs/hotel/v3/res
+    protected $baseUrl = "http://api.ean.com/ean-services/rs/hotel/v3/";
     /**
      * Get the status for a specific booking by itenary id.
      *
-     * @param $id
-     * @param $checkinDate
-     * @param $checkoutDate
+     * @param $parameters
      * @return mixed
      */
-    public function getStatus($id, $checkinDate, $checkoutDate)
+    public function getStatus($parameters)
     {
-        $parameters = [
-            "itineraryId"        => $id,
-            "departureDateStart" => $checkinDate,
-            "departureDateEnd"   => $checkoutDate
-        ];
-        return $this->get($this->baseUrl.'itin?', $parameters);
+        return $this->get($this->getBaseUrl('itin').$parameters);
     }
 
     /**
      * Book Reservation.
      *
-     * @param  array $parameters
+     * @param  string $parameters
      * @return mixed
      */
-    public function postBook(array $parameters = [])
+    public function postBook( $parameters)
     {
-        return $this->post('https://book.api.ean.com/ean-services/rs/hotel/v3/res', $parameters);
+        $response =  $this->post('https://book.api.ean.com/ean-services/rs/hotel/v3/res', $this->getClient()->getBaseUrl() .$parameters)->HotelRoomReservationResponse;
+
+        if (property_exists($response, "verboseMessage"))
+            return @$response->EanWsError->verboseMessage ? : json_encode($response->EanWsError);
+        }
+
+        return [
+            'confirmationNumbers'   => $itineraryId,
+            'itineraryId'           => $response->itineraryId,
+        ];
     }
 
+    public function getBaseUrl($keyword)
+    {
+        return $this->baseUrl .$keyword.'?'.$this->getClient()->getBaseUrl();
+    }
 }

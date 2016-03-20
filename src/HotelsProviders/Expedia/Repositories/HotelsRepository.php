@@ -11,19 +11,23 @@ class HotelsRepository extends AbstractRepository
      */
     public function getHotelInfo($id, array $parameters = [])
     {
-        return $this->getApi()->getHotelInfo($id, $this->parseQueryParameters($parameters));
+        $parameters['hotelId'] = $id;
+
+        return $this->getApi()->getHotelInfo($this->parseQueryParameters($parameters));
     }
 
     /**
      * Get the avilabilties of a hotels by Ids.
      *
-     * @param $id
+     * @param $ids
      * @param  array $parameters
      * @return hotelsList
      */
-    public function getHotelAvailabiltyByList($id, array $parameters = [])
+    public function getHotelAvailabiltyByList($ids, array $parameters = [])
     {
-        return $this->getApi()->getHotelsList($ids, $this->parseQueryParameters($parameters));
+        $parameters["hotelIdList"] = implode(',', $$ids);
+
+        return $this->getApi()->getHotelsList($this->parseQueryParameters($parameters));
     }
 
     /**
@@ -35,7 +39,9 @@ class HotelsRepository extends AbstractRepository
      */
     public function getPaymentTypes($id, array $parameters = [])
     {
-        return $this->getApi()->getPaymentTypes($id, $this->parseQueryParameters($parameters));
+        $parameters['hotelId'] = $id;
+
+        return $this->getApi()->getPaymentTypes($this->parseQueryParameters($parameters));
     }
 
     /**

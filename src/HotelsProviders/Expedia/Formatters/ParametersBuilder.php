@@ -2,27 +2,35 @@
 
 class ParametersBuilder
 {
-    public function rooms($room, $customer)
+    public function room($room, $customer)
     {
+        list($firstName, $lastName) = explode(' ', $customer['translated-name'], 2);
+
         $parameters = [
-            'rateType'                 => $room['is_prepaid'] ? 'MerchantStandard' : 'DirectAgency',
-            'roomTypeCode'             => $room['accommodation_id'],
-            'rateCode'                 => $room['code'],
-            'rateKey'                  => $room['key'],
-            'chargeableRate'           => $room['chargeable_rate'],
-            'room1'                    => $room['adults'].','.@$room['children'],
-            'room1BedTypeId'           => $room['bedType'],
-            'room1FirstName'           => $customer['firstName'],
-            'room1LastName'            => $customer['lastName']
+            'rateType'           => $room['is_prepaid'] ? 'MerchantStandard' : 'DirectAgency',
+            'roomTypeCode'       => $room['accommodation_id'],
+            'rateCode'           => $room['code'],
+            'rateKey'            => $room['key'],
+            'chargeableRate'     => $room['chargeable_rate'],
+            'room1'              => $room['adults'].','.@$room['children'],
+            'room1BedTypeId'     => $room['bedType'],
+            'room1FirstName'     => $firstName,
+            'room1LastName'      => $lastName,
+            'supplierType'       => 'E',
+            'currencyCode'       => $room['currency']
         ];
 
-        for ($i = 1; $i < $room['roomCounts']; $i++) {
+        $roomsCount = isset($room['roomCounts']) ? $room['roomCounts'] : 1;
+
+        for ($i = 1; $i < $roomsCount; $i++) {
             $roomNum = 'room'.($i + 1);
             $parameters[$roomNum]             = $parameters['room1'];
             $parameters[$roomNum.'BedTypeId'] = $parameters['room1BedTypeId'];
             $parameters[$roomNum.'FirstName'] = $parameters['room1FirstName'];
             $parameters[$roomNum.'LastName']  = $parameters['room1LastName'];
         }
+
+        return $parameters;
     }
 
     public function customer($customer, $cardHolder)
@@ -30,22 +38,30 @@ class ParametersBuilder
         list($firstName, $lastName) = explode(' ', $customer['translated-name'], 2);
 
         return [
-            'firstName'            => $firstName,
-            'lastName'             => $lastName,
-            'homePhone'            => $customer['phone'],
-            'email'                => $customer['email'],
-            'customerIpAddress'    => $customer['ip_address'],
-            'customerSessionId'    => $customer['ip_address'],
-            'customerUserAgent'    => $_SERVER['HTTP_USER_AGENT'],
-            'countryCode'          => $cardHolder['address_country'],
-            'city'                 => $cardHolder['address_city'],
-            'postalCode'           => $cardHolder['address_zip'],
-            'address1'             => $cardHolder['address_line'],
-            'stateProvinceCode'    => $cardHolder['address_state']
+            'firstName'                 => $firstName,
+            'lastName'                  => $lastName,
+            'homePhone'                 => $customer['phone'],
+            'email'                     => $customer['email'],
+            'countryCode'               => $cardHolder['address_country'],
+            'city'                      => $cardHolder['address_city'],
+            'postalCode'                => $cardHolder['address_zip'],
+            'address1'                  => $cardHolder['address_line'],
+            'stateProvinceCode'         => $cardHolder['address_state'],
+            'affiliateConfirmationId'   => $this->GUID()
 
         ];
     }
 
+    public function reservation($hotelId, $reservation)
+    {
+        return [
+            'hotelId'               => $hotelId,
+            'arrivalDate'           => $reservation['checkin_date'],
+            'departureDate'         => $reservation['checkout_date'],
+            'specialRequest'        => $reservation['special_request'],
+            'sendReservationEmail'  => true
+        ];
+    }
     public function creditCard($creditCard)
     {
         list($firstName, $lastName) = explode(' ', $creditCard['translated-name'], 2);
@@ -83,5 +99,13 @@ class ParametersBuilder
             "japancreditbureau"     => 'JC',
             "maestro"               => 'TO'
         ];
+    }
+
+    protected function GUID()
+    {
+        return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X',
+               mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535),
+               mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535),
+               mt_rand(0, 65535), mt_rand(0, 65535));
     }
 }

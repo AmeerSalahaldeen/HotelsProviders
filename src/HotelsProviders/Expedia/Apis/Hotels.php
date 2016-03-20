@@ -7,15 +7,12 @@ class Hotels extends AbstractApi
     /**
      * Get the Hotel information for a specific Hotel id.
      *
-     * @param $id
      * @param  array $options
      * @return mixed
      */
-    public function getHotelInfo($id, array $parameters = [])
+    public function getHotelInfo($parameters)
     {
-        $parameters['hotelId'] = $id;
-
-        return $this->get($this->baseUrl.'info', $parameters);
+        return $this->get($this->getBaseUrl('info').$parameters);
     }
 
     /**
@@ -25,11 +22,9 @@ class Hotels extends AbstractApi
      * @param  array $parameters
      * @return mixed
      */
-    public function getHotelsList($ids, array $parameters = [])
+    public function getHotelsList( array $parameters = [])
     {
-        $parameters["hotelIdList"] = implode(',', $$ids);
-
-        return $this->get($this->baseUrl.'list', $parameters);
+        return $this->get($this->getBaseUrl('list').$parameters);
     }
 
     /**
@@ -42,6 +37,10 @@ class Hotels extends AbstractApi
     public function getPaymentTypes($id, array $parameters = [])
     {
         //TODO 
+    }
+    public function getBaseUrl($keyword)
+    {
+        return $this->baseUrl .$keyword.'?'.$this->getClient()->getBaseUrl();
     }
 
 }

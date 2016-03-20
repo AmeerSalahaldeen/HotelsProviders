@@ -46,7 +46,7 @@ abstract class AbstractApi
      */
     public function post($path, $postBody = null, array $parameters = [])
     {
-        $response = $this->getClient()->getHttpClient()->post($path, $postBody, $parameters);
+        $response = $this->getClient()->post($path, $postBody, $parameters);
 
         return $this->decodeResponse($response);
     }

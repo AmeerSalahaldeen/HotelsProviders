@@ -12,28 +12,42 @@ class BookingsRepository extends AbstractRepository
      */
     public function getStatus($id, $checkinDate, $checkoutDate)
     {
-        return $this->getBookingApi()->getStatus($id, $checkinDate, $checkoutDate);
+        $parameters = [
+            "itineraryId"           => $id,
+            "departureDateStart"    => $checkinDate,
+            "departureDateEnd"      => $checkoutDate
+        ];
+
+        return $this->getBookingApi()->getStatus($this->parseQueryParameters($parameters));
     }
     /**
-     * Book Rooms
+     * Book rooms 
      *
-     * @return \Api\Booking
+     * @param  $hotelId
+     * @param  $customer
+     * @param  $creditCard
+     * @param  $reservation
+     * @param  $rooms
+     * @return $reservation
      */
-    public function postBook($customer, $creditCard, $cardHolder, $rooms)
+    // TODO MultiCurl Post requests. 
+    public function postBook($hotelId, $customer, $creditCard, $reservation, $rooms)
     {
-        $parametersBuilder = \App::make('HotelsProviders\Expedia\Formatter\ParametersBuilder');
+        $mergedRooms       = $this->meregRooms($rooms);
+        $reservationInfo   = $this->reservationInfo($hotelId, $customer, $creditCard, $reservation);
 
-        $rooms             = $this->meregRooms($rooms);
-        $customerParams    = $this->parseQueryParameters($parametersBuilder->customer($customer, $cardHolder));
-        $creditCardParams  = $this->parseQueryParameters($parametersBuilder->creditCard($creditCard));
-
-        foreach ($rooms as $room) {
-            $param = $parametersBuilder->room($room, $customer);
-            $param = $this->parseQueryParameters($param);
-            $parameters[] = $param.$customerParams.$creditCardParams;
+        foreach ($mergedRooms as $identfier => $room) {
+            $param = $this->parseQueryParameters($parametersBuilder->room($room, $customer));
+            $results[$identfier] = $this->getClient()->getBookingsApi()->postBook($param.$reservationInfo);
         }
 
-        return $this->getClient()->getBookingApi()->postBook($parameters);
+        foreach ($rooms as $room) {
+            $identfier = $room['accommodation_id'].$room['code'].$room['key'];
+            $roomsReponses['room'] = $room;
+            $roomsReponses['status'] = $results[$identfier];
+        }
+
+        return $roomsReponses;
     }
 
     /**
@@ -46,7 +60,7 @@ class BookingsRepository extends AbstractRepository
     {
         $mergedRooms = [];
         foreach ($rooms as $room) {
-            $identfier = $room['roomTypeCode'].$room['rateCode'].$room['rateKey'];
+            $identfier = $room['accommodation_id'].$room['code'].$room['key'];
 
             if (in_array($identfier, array_keys($mergedRooms))) {
                 $mergedRooms[$identfier]['roomsCount'] = $rooms[$identfier]['roomsCount'] + 1;
@@ -58,4 +72,26 @@ class BookingsRepository extends AbstractRepository
         return $mergedRooms;
     }
 
+    protected function reservationInfo($hotelId, $customer, $creditCard, $reservation)
+    {
+        $parametersBuilder = \App::make('HotelsProviders\Expedia\Formatters\ParametersBuilder');
+
+        $customerParams    = $this->parseQueryParameters($parametersBuilder->customer($customer, $creditCard));
+        $reservationParams = $this->parseQueryParameters($parametersBuilder->reservation($hotelId, $reservation));
+        $creditCardParams  = $this->parseQueryParameters($parametersBuilder->creditCard($creditCard));
+
+        return $reservationParams.$customerParams.$creditCardParams;
+    } 
+
+    /**
+     * Return the related API class
+     *
+     * @return \Apias\Bokings
+     */
+    public function getApi()
+    {
+        return $this->getClient()->getBookingsApi();
+    }
+
 }
+

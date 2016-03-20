@@ -13,12 +13,11 @@ return array(
 
     /*
     |--------------------------------------------------------------------------
-    | Expedia APi Url
+    | Expedia APi Experience
     |--------------------------------------------------------------------------
     |
     */
-
-    'expediaApiUrl' => 'http://api.ean.com/ean-services/rs/hotel/v3',
+    'apiExperience'  => 'PARTNER_WEBSITE',
 
     /*
     |--------------------------------------------------------------------------
@@ -41,12 +40,11 @@ return array(
 
     /*
     |--------------------------------------------------------------------------
-    | Expedia Book URl
+    | Expedia Sig
     |--------------------------------------------------------------------------
     |
-    | This is used if the new report request fails
     |
     */
 
-    'bookingUrl' => 'https://book.api.ean.com/ean-services/rs/hotel/v3/res',
+    'sig'    => 'JGJjxP3X'
 );

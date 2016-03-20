@@ -4,7 +4,6 @@ trait RequestTrait
 {
     public function post($url, $params)
     {
-        $url = $url.$this->baseUrl;
         $header[] = "Accept: application/json";
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
@@ -20,23 +19,21 @@ trait RequestTrait
     public function get($url)
     {
         // if more than one url ,use multi curl.
-        if (is_array($url) return $this->curlMultiRequest($url, [], true);
-
-        $url = $url.$this->baseUrl;
+        if (is_array($url)) return $this->curlMultiRequest($url, [], true);
+        // $url = $url.$this->url;
         $headers = [ 
             "Accept-Encoding: gzip",
             "Accept: application/json"
         ];
 
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         curl_setopt($ch, CURLOPT_ENCODING , "gzip");
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'get');
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($ch);
         curl_close($ch);
-
         return $response;
     }
 
@@ -58,18 +55,18 @@ trait RequestTrait
 
         foreach ($data as $id => $d) {
             $curly[$id] = curl_init();
-            $url = (is_array($d) && !empty($d['url'])) ? $d['url'] : $d;
+            $url = (is_array($d) && ! empty($d['url'])) ? $d['url'] : $d;
             curl_setopt($curly[$id], CURLOPT_URL, $url);
             curl_setopt($curly[$id], CURLOPT_HEADER, 0);
             curl_setopt($curly[$id], CURLOPT_RETURNTRANSFER, 1);
 
-            // post?
-            if (is_array($d)) {
-                if ( ! empty($d['post'])) {
-                    curl_setopt($curly[$id], CURLOPT_POST, 1);
-                    curl_setopt($curly[$id], CURLOPT_POSTFIELDS, $d['post']);
-                }
-            }
+            // // post?
+            // if (is_array($d)) {
+            //     if ( ! empty($d['post'])) {
+            //         curl_setopt($curly[$id], CURLOPT_POST, 1);
+            //         curl_setopt($curly[$id], CURLOPT_POSTFIELDS, $d['post']);
+            //     }
+            //}
 
             curl_multi_add_handle($mh, $curly[$id]);
         }

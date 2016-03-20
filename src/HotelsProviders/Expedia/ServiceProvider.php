@@ -20,7 +20,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	{
         // Register the package namespace
         $this->package('HotelsProviders/Expedia');
-
 		// Auto create app alias with boot method.
 		AliasLoader::getInstance()->alias('ExpediaProviders', 'HotelsProviders\Expedia\Facade');
 	}
@@ -32,11 +31,15 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider {
 	 */
 	public function register()
 	{
+		// Load the Config File.
+		$this->app['config']->package('hotelsProviders/expedia', __DIR__.'/../config');
+
 		$this->app['HotelsProviders.expedia'] = $this->app->share(function($app)
 		{
-            $config = $app->config->get('HotelsProviders::config', array());
+			$config = $this->app['config'];
+			$client = new Client($config);
 
-			return new ExpediaProvider($config);
+			return new ExpediaProvider($client);
 		});
 	}
 
